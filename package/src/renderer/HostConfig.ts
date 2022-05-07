@@ -4,6 +4,9 @@ import type { HostConfig } from "react-reconciler";
 import type { Node, Container, DeclarationProps, DrawingProps } from "./nodes";
 import { DeclarationNode, DrawingNode, NodeType } from "./nodes";
 import { exhaustiveCheck, shallowEq } from "./typeddash";
+import type { AnimatedProps } from "./processors/Animations/Animations";
+import type { GlyphsProps } from "./components/text/Glyphs2";
+import { GlyphsNode } from "./components/text/Glyphs2";
 
 const DEBUG = false;
 export const debug = (...args: Parameters<typeof console.log>) => {
@@ -20,6 +23,7 @@ declare global {
       skDeclaration: DeclarationProps<any>;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       skDrawing: DrawingProps<any>;
+      skGlyphs: GlyphsProps;
     }
   }
 }
@@ -126,6 +130,8 @@ const createNode = (container: Container, type: NodeType, props: Props) => {
     case NodeType.Declaration:
       const { onDeclare, ...p2 } = props;
       return new DeclarationNode(container.depMgr, onDeclare, p2);
+    case NodeType.Glyphs:
+      return new GlyphsNode(container.depMgr, props);
     default:
       // TODO: here we need to throw a nice error message
       // This is the error that will show up when the user uses nodes not supported by Skia (View, Audio, etc)

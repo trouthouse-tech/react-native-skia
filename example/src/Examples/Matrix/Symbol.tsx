@@ -4,13 +4,13 @@ import {
   useDerivedValue,
   interpolateColors,
   vec,
-  Glyphs,
+  Glyphs2,
 } from "@shopify/react-native-skia";
 import { Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
-export const COLS = 5;
-export const ROWS = 10;
+export const COLS = 10;
+export const ROWS = 20;
 export const SYMBOL = { width: width / COLS, height: height / ROWS };
 const pos = vec(0, 0);
 
@@ -57,7 +57,7 @@ export const Symbol = ({
   );
 
   return (
-    <Glyphs
+    <Glyphs2
       x={x + SYMBOL.width / 4}
       y={y + SYMBOL.height}
       font={font}

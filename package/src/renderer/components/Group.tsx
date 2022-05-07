@@ -11,7 +11,7 @@ import type {
   ClipDef,
 } from "../processors";
 import { createDrawing, DrawingNode } from "../nodes";
-import { isDeclarationNode } from "../nodes/Declaration";
+import { isDeclarationNode, DeclarationNode } from "../nodes/Declaration";
 
 const isSkPaint = (obj: RefObject<SkPaint> | SkPaint): obj is SkPaint =>
   "__typename__" in obj && obj.__typename__ === "Paint";
@@ -30,7 +30,7 @@ const onDraw = createDrawing<GroupProps>(
       .map((child) => child.draw(ctx));
 
     const drawings = node.children.filter(
-      (child) => child instanceof DrawingNode
+      (child) => !(child instanceof DeclarationNode)
     );
     const paint = processPaint(
       ctx.paint.copy(),

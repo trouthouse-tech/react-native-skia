@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import type { DrawingContext } from "../DrawingContext";
 import type { SkJSIInstance } from "../../skia/JsiInstance";
 import type { AnimatedProps } from "../processors";
-import { isAnimated, materialize } from "../processors";
+import { isAnimated } from "../processors";
 import type { DependencyManager } from "../DependencyManager";
 
 import { Node } from "./Node";
@@ -60,7 +60,7 @@ export class DeclarationNode<P> extends Node<P> {
 
   draw(ctx: DrawingContext) {
     const children = this.visit(ctx);
-    const props = materialize(this.props);
+    const { props } = this;
     const obj = this.onDeclare(props, children, ctx);
     return obj;
   }

@@ -6,6 +6,7 @@ import type { AnimatedProps } from "../processors";
 export enum NodeType {
   Declaration = "skDeclaration",
   Drawing = "skDrawing",
+  Glyphs = "skGlyphs",
 }
 
 type DeclarationResult = SkJSIInstance<string> | null;

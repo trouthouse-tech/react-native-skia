@@ -4,7 +4,6 @@ import { useCallback } from "react";
 import type { DrawingContext } from "../DrawingContext";
 import { processPaint } from "../processors";
 import type { AnimatedProps } from "../processors/Animations/Animations";
-import { materialize } from "../processors/Animations/Animations";
 import { isPaint } from "../../skia";
 import type { DependencyManager } from "../DependencyManager";
 
@@ -47,7 +46,7 @@ export class DrawingNode<P> extends Node<P> {
   }
 
   draw(ctx: DrawingContext) {
-    const drawingProps = materialize(this.props);
+    const drawingProps = this.props;
     if (this.skipProcessing) {
       this.onDraw(ctx, drawingProps, this);
     } else {
