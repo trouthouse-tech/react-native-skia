@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import type { SkiaReadonlyValue, SkFont } from "@shopify/react-native-skia";
 import {
+  mix,
   Rect,
   Skia,
   useDerivedValue,
@@ -11,8 +12,8 @@ import {
 import { Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
-export const COLS = 20;
-export const ROWS = 40;
+export const COLS = 15;
+export const ROWS = 30;
 export const SYMBOL = { width: width / COLS, height: height / ROWS };
 const pos = vec(0, 0);
 
@@ -37,7 +38,6 @@ export const Symbol = ({
   const range = useRef(100 + Math.random() * 900);
   const x = i * SYMBOL.width;
   const y = j * SYMBOL.height;
-
   const glyphs = useDerivedValue(() => {
     const idx = offset.current + Math.floor(timestamp.current / range.current);
     return [{ id: symbols[idx % symbols.length], pos }];
@@ -47,6 +47,19 @@ export const Symbol = ({
     const idx = Math.round(timestamp.current / 100);
     return stream[(stream.length - j + idx) % stream.length];
   }, [timestamp]);
+
+  const color = useDerivedValue(
+    () =>
+      Skia.Color(
+        `rgb(${mix(opacity.current, 0, 140)}, ${mix(
+          opacity.current,
+          150,
+          255
+        )}, ${mix(opacity.current, 70, 170)})`
+      ),
+    [opacity]
+  );
+
   return (
     <Glyphs2
       x={x + SYMBOL.width / 4}
@@ -54,7 +67,7 @@ export const Symbol = ({
       font={font}
       glyphs={glyphs}
       opacity={opacity}
-      color={Skia.Color("rgb(0, 255, 70)")}
+      color={color}
     />
   );
 };

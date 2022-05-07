@@ -119,5 +119,15 @@ export const Glyphs2 = (props: AnimatedProps<GlyphsProps>) => {
       ref.current.positions = positions;
     }
   });
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.depMgr.subscribeNode(ref.current, props);
+      ref.current.depMgr.subscribe();
+      return () => {
+        ref.current?.depMgr.unsubscribe();
+      };
+    }
+    return;
+  }, []);
   return <skGlyphs ref={ref} {...materialize(props)} />;
 };
