@@ -25,19 +25,7 @@ export interface GroupProps extends CustomPaintProps, TransformProps {
 const onDraw = createDrawing<GroupProps>(
   (ctx, { layer, clip, invertClip, ...groupProps }, node) => {
     const { canvas, opacity } = ctx;
-    const declarations = node.children
-      .filter(isDeclarationNode)
-      .map((child) => child.draw(ctx));
-
-    const drawings = node.children.filter(
-      (child) => !(child instanceof DeclarationNode)
-    );
-    const paint = processPaint(
-      ctx.paint.copy(),
-      opacity,
-      groupProps,
-      declarations
-    );
+    const paint = processPaint(ctx.paint.copy(), opacity, groupProps, []);
     const hasTransform = !!groupProps.transform || !!groupProps.matrix;
     const hasClip = !!clip;
     const shouldSave = hasTransform || hasClip || !!layer;
@@ -59,14 +47,11 @@ const onDraw = createDrawing<GroupProps>(
         processClip(canvas, clip, op);
       }
     }
-    node.visit(
-      {
-        ...ctx,
-        paint,
-        opacity: groupProps.opacity ? groupProps.opacity * opacity : opacity,
-      },
-      drawings
-    );
+    node.visit({
+      ...ctx,
+      paint,
+      opacity: groupProps.opacity ? groupProps.opacity * opacity : opacity,
+    });
     if (shouldSave) {
       canvas.restore();
     }

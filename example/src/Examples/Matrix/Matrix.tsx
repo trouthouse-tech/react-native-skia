@@ -40,22 +40,19 @@ export const Matrix = () => {
   return (
     <Canvas style={{ flex: 1 }} mode="continuous" debug>
       <Fill color="black" />
-      <Group>
-        <BlurMask blur={8} style="solid" />
-        {cols.map((_i, i) =>
-          rows.map((_j, j) => (
-            <Symbol
-              symbols={symbols}
-              font={font}
-              timestamp={clock}
-              key={`${i}-${j}`}
-              i={i}
-              j={j}
-              stream={streams[i]}
-            />
-          ))
-        )}
-      </Group>
+      {cols.map((_i, i) =>
+        rows.map((_j, j) => (
+          <Symbol
+            symbols={symbols}
+            font={font}
+            timestamp={clock}
+            key={`${i}-${j}`}
+            i={i}
+            j={j}
+            stream={streams[i]}
+          />
+        ))
+      )}
     </Canvas>
   );
 };
