@@ -41,7 +41,7 @@ const Ring = ({ index, progress, r, center }: RingProps) => {
     );
     const scale = mix(progress.current, 0.3, 1);
     return [{ translateX: x }, { translateY: y }, { scale }];
-  }, [progress]);
+  }, [progress, r]);
 
   return (
     <Group origin={center} transform={transform}>
@@ -50,12 +50,8 @@ const Ring = ({ index, progress, r, center }: RingProps) => {
   );
 };
 
-interface CompositionProps {
-  skiaRef: RefObject<SkiaView>;
-}
-
-const Composition = ({ skiaRef }: CompositionProps) => {
-  const { width, height } = useCanvasSize(skiaRef);
+const Composition = () => {
+  const { width, height } = useCanvasSize();
   const r = width / 4;
   const center = vec(width / 2, height / 2);
   const progress = useLoop({
@@ -87,11 +83,10 @@ const Composition = ({ skiaRef }: CompositionProps) => {
 };
 
 export const Breathe = () => {
-  const ref = useCanvasRef();
   return (
-    <Canvas style={styles.container} ref={ref} debug>
+    <Canvas style={styles.container} debug mode="continuous">
       <Fill color="rgb(36,43,56)" />
-      <Composition skiaRef={ref} />
+      <Composition />
     </Canvas>
   );
 };
