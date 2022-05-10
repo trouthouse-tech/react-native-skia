@@ -24,6 +24,7 @@ import type { FontMgr } from "../skia/FontMgr/FontMgr";
 import { useValue } from "../values/hooks/useValue";
 import type { SkiaReadonlyValue } from "../values/types";
 import { SkiaPaint } from "../skia/Paint/Paint";
+import { useValueEffect } from "../values/hooks/useValueEffect";
 
 import { debug as hostDebug, skHostConfig } from "./HostConfig";
 // import { debugTree } from "./nodes";
@@ -36,12 +37,23 @@ const CanvasContext = React.createContext<SkiaReadonlyValue<{
   height: number;
 }> | null>(null);
 
-export const useCanvasSize = () => {
+export const useCanvasValue = () => {
   const canvas = useContext(CanvasContext);
   if (!canvas) {
     throw new Error("Canvas context is not available");
   }
   return canvas;
+};
+
+export const useCanvasSize = () => {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const canvas = useCanvasValue();
+  useValueEffect(canvas, ({ width, height }) => {
+    if (width !== size.width || height !== size.height) {
+      setSize({ width, height });
+    }
+  });
+  return size;
 };
 
 export const skiaReconciler = ReactReconciler(skHostConfig);

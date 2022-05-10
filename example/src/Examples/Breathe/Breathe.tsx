@@ -1,7 +1,8 @@
 import React from "react";
 import { Dimensions, StyleSheet } from "react-native";
-import type { SkiaReadonlyValue } from "@shopify/react-native-skia";
+import type { SkiaReadonlyValue, Vector } from "@shopify/react-native-skia";
 import {
+  useCanvasSize,
   useDerivedValue,
   useLoop,
   BlurMask,
@@ -15,22 +16,21 @@ import {
   mix,
 } from "@shopify/react-native-skia";
 
-const { width, height } = Dimensions.get("window");
 const c1 = "#61bea2";
 const c2 = "#529ca0";
-const R = width / 4;
-const center = vec(width / 2, height / 2 - 64);
 
 interface RingProps {
   index: number;
   progress: SkiaReadonlyValue<number>;
+  r: number;
+  center: Vector;
 }
 
-const Ring = ({ index, progress }: RingProps) => {
+const Ring = ({ index, progress, r, center }: RingProps) => {
   const theta = (index * (2 * Math.PI)) / 6;
   const transform = useDerivedValue(() => {
     const { x, y } = polar2Canvas(
-      { theta, radius: progress.current * R },
+      { theta, radius: progress.current * r },
       { x: 0, y: 0 }
     );
     const scale = mix(progress.current, 0.3, 1);
@@ -39,12 +39,15 @@ const Ring = ({ index, progress }: RingProps) => {
 
   return (
     <Group origin={center} transform={transform}>
-      <Circle c={center} r={R} color={index % 2 ? c1 : c2} />
+      <Circle c={center} r={r} color={index % 2 ? c1 : c2} />
     </Group>
   );
 };
 
-export const Breathe = () => {
+const Composition = () => {
+  const { width, height } = useCanvasSize();
+  const r = width / 4;
+  const center = vec(width / 2, height / 2);
   const progress = useLoop({
     duration: 3000,
     easing: Easing.inOut(Easing.ease),
@@ -56,14 +59,28 @@ export const Breathe = () => {
   );
 
   return (
+    <Group origin={center} transform={transform} blendMode="screen">
+      <BlurMask style="solid" blur={40} />
+      {new Array(6).fill(0).map((_, index) => {
+        return (
+          <Ring
+            key={index}
+            index={index}
+            progress={progress}
+            r={r}
+            center={center}
+          />
+        );
+      })}
+    </Group>
+  );
+};
+
+export const Breathe = () => {
+  return (
     <Canvas style={styles.container} debug>
       <Fill color="rgb(36,43,56)" />
-      <Group origin={center} transform={transform} blendMode="screen">
-        <BlurMask style="solid" blur={40} />
-        {new Array(6).fill(0).map((_, index) => {
-          return <Ring key={index} index={index} progress={progress} />;
-        })}
-      </Group>
+      <Composition />
     </Canvas>
   );
 };
