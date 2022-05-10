@@ -31,6 +31,7 @@ import { debug as hostDebug, skHostConfig } from "./HostConfig";
 import { vec } from "./processors";
 import { Container } from "./nodes";
 import { DependencyManager } from "./DependencyManager";
+import { sub } from "./processors/math/Vector";
 
 const CanvasContext = React.createContext<SkiaReadonlyValue<{
   width: number;
@@ -45,10 +46,15 @@ export const useCanvasValue = () => {
   return canvas;
 };
 
-export const useCanvasSize = () => {
+export const useCanvasSize = (ref: RefObject<SkiaView>) => {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const canvas = useCanvasValue();
+  // useEffect(() => {
+  //   const sub = ref.current?.registerValues([canvas]);
+  //   return () => sub!();
+  // }, [canvas, ref]);
   useValueEffect(canvas, ({ width, height }) => {
+    console.log({ width, height });
     if (width !== size.width || height !== size.height) {
       setSize({ width, height });
     }
