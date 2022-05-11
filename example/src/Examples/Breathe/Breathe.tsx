@@ -1,75 +1,73 @@
-import React from "react";
-import { Dimensions, StyleSheet } from "react-native";
-import type { SkiaReadonlyValue } from "@shopify/react-native-skia";
+import React, { useEffect } from "react";
+import type { SkiaValue } from "@shopify/react-native-skia";
 import {
-  useDerivedValue,
-  useLoop,
-  BlurMask,
-  vec,
   Canvas,
   Circle,
-  Fill,
   Group,
-  polar2Canvas,
-  Easing,
-  mix,
+  Rect,
+  useValue,
+  useDerivedValue,
+  runTiming,
 } from "@shopify/react-native-skia";
+import { Dimensions } from "react-native";
 
-const { width, height } = Dimensions.get("window");
-const c1 = "#61bea2";
-const c2 = "#529ca0";
-const R = width / 4;
-const center = vec(width / 2, height / 2 - 64);
+type Clamp = [number, number];
 
-interface RingProps {
-  index: number;
-  progress: SkiaReadonlyValue<number>;
+function startRandAnimation(
+  debug: string,
+  count: number,
+  value: SkiaValue<number>,
+  clamp: Clamp,
+  desired = 1
+) {
+  runTiming(value, desired, { duration: randIn([1000, 2000]) }, () => {
+    console.log(`generating ${debug} #${count}`);
+    startRandAnimation(debug, count + 1, value, clamp, randIn(clamp));
+  });
 }
 
-const Ring = ({ index, progress }: RingProps) => {
-  const theta = (index * (2 * Math.PI)) / 6;
-  const transform = useDerivedValue(() => {
-    const { x, y } = polar2Canvas(
-      { theta, radius: progress.current * R },
-      { x: 0, y: 0 }
-    );
-    const scale = mix(progress.current, 0.3, 1);
-    return [{ translateX: x }, { translateY: y }, { scale }];
-  }, [progress]);
+function randIn(clamp: Clamp) {
+  return Math.floor(clamp[0] + Math.random() * (clamp[1] - clamp[0]));
+}
 
-  return (
-    <Group origin={center} transform={transform}>
-      <Circle c={center} r={R} color={index % 2 ? c1 : c2} />
-    </Group>
+function useRGB(debug: string, clamp: Clamp = [0, 256]) {
+  const red = useValue(randIn(clamp));
+  const green = useValue(randIn(clamp));
+  const blue = useValue(randIn(clamp));
+  const rgb = useDerivedValue(
+    () => `rgb(${red.current}, ${green.current}, ${blue.current})`,
+    [red, green, blue]
   );
-};
+  useEffect(() => {
+    startRandAnimation(`${debug}-red`, 0, red, clamp, red.current);
+    startRandAnimation(`${debug}-green`, 0, green, clamp, green.current);
+    startRandAnimation(`${debug}-blue`, 0, blue, clamp, blue.current);
+  }, []);
+
+  return rgb;
+}
 
 export const Breathe = () => {
-  const progress = useLoop({
-    duration: 3000,
-    easing: Easing.inOut(Easing.ease),
-  });
+  const { width, height } = Dimensions.get("window");
+  const cx = width / 2;
+  const cy = height / 2;
+  const d = 50;
+  const r = Math.min(width, height) / 4;
 
-  const transform = useDerivedValue(
-    () => [{ rotate: mix(progress.current, -Math.PI, 0) }],
-    [progress]
-  );
+  // animate one circle's colors
+  const rgb0 = useRGB("top", [0, 256]);
+  const rgb1 = useRGB("left", [64, 256]);
+  const rgb2 = useRGB("right", [128, 256]);
+  const bg = useRGB("background", [192, 256]);
 
   return (
-    <Canvas style={styles.container} debug>
-      <Fill color="rgb(36,43,56)" />
-      <Group origin={center} transform={transform} blendMode="screen">
-        <BlurMask style="solid" blur={40} />
-        {new Array(6).fill(0).map((_, index) => {
-          return <Ring key={index} index={index} progress={progress} />;
-        })}
+    <Canvas style={{ flex: 1 }}>
+      <Rect x={0} y={0} width={width} height={height} color={bg} />
+      <Group blendMode="multiply">
+        <Circle cx={cx} cy={cy - d} r={r} color={rgb0} />
+        <Circle cx={cx - d} cy={cy + d} r={r} color={rgb1} />
+        <Circle cx={cx + d} cy={cy + d} r={r} color={rgb2} />
       </Group>
     </Canvas>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
