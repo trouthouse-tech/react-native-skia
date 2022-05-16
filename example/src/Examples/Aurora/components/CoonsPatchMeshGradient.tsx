@@ -196,7 +196,7 @@ interface RectPatchProps {
   debug?: boolean;
   lines?: boolean;
   colors: string[];
-  mesh: SkiaReadonlyValue<CubicBezierHandle[]>;
+  mesh: SkiaValue<CubicBezierHandle[]>;
   defaultMesh: CubicBezierHandle[];
 }
 
