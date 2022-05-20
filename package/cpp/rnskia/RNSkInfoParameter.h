@@ -24,6 +24,7 @@ using RNSkTouchPoint = struct {
   double force;
   RNSkTouchType type;
   long timestamp;
+  bool isPencil;
 };
 
 class RNSkInfoObject : public JsiHostObject {
@@ -44,6 +45,7 @@ public:
         touchObj.setProperty(runtime, "y", t.y);
         touchObj.setProperty(runtime, "force", t.force);
         touchObj.setProperty(runtime, "type", (double)t.type);
+        touchObj.setProperty(runtime, "isPencil", t.isPencil);
         touchObj.setProperty(runtime, "timestamp", (double)t.timestamp / 1000.0);
         touches.setValueAtIndex(runtime, n, touchObj);
       }
